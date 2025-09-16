@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@angular/cli": "^20.2.2",
+    "@auth0/angular-jwt": "^5.2.0"
+  }
+}
