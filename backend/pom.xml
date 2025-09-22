@@ -8,11 +8,11 @@
 		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.sp.gov.fatec.ubs</groupId>
+	<groupId>br.maua.corporativo.projeto</groupId>
 	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>backend</name>
-	<description>UBS - Backend</description>
+	<description>Backend do Projeto</description>
 	<url/>
 	<licenses>
 		<license/>
