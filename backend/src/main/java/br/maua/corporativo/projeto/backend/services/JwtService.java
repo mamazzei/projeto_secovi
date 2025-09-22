@@ -1,11 +1,13 @@
 package br.maua.corporativo.projeto.backend.services;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,15 +51,15 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
-        return Jwts
-                .builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-            
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+        long now = System.currentTimeMillis();
+        long exp = now + expiration;
+        JwtBuilder builder = Jwts.builder();
+        builder.setIssuedAt(new Date(now));
+            builder.setExpiration(new Date(exp));
+            builder.setSubject(userDetails.getUsername());
+            builder.addClaims(extraClaims);
+            builder.signWith(getSignInKey(), SignatureAlgorithm.HS256);
+        return builder.compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

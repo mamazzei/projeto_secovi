@@ -40,8 +40,16 @@ public class AuthenticationController {
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
         LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setCreatedAt(System.currentTimeMillis());
         loginResponse.setUserId(authenticatedUser.getId());
         loginResponse.setToken(jwtToken);
+        String[] roles = new String[authenticatedUser.getAuthorities().size()];
+        int contador=0;
+        for (String roleString : authenticatedUser.getAuthorities().stream().map(auth -> auth.getAuthority()).toList()) {
+            roles[contador] = roleString;
+            contador++; 
+        }
+        loginResponse.setRoles(roles);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
 
         return ResponseEntity.ok(loginResponse);

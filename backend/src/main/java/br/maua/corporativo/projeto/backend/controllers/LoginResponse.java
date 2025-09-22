@@ -7,7 +7,19 @@ public class LoginResponse {
 
 	private long userId;
 
-    public String getToken() {
+	private long createdAt = System.currentTimeMillis();
+
+	private String[] roles;
+
+    public String[] getRoles() {
+		return roles;
+	}
+
+	public void setRoles(String[] roles) {
+		this.roles = roles;
+	}
+
+	public String getToken() {
         return token;
     }
 
@@ -32,5 +44,14 @@ public class LoginResponse {
 		this.userId = userId;
 	}
 
+	public long getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(long createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	
 	
 }

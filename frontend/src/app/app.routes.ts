@@ -4,6 +4,7 @@ import { Login } from './entrada/login/login';
 import { Logado as logadoFuncionario } from './funcionario/logado/logado';
 import { Logado as logadoAdmin } from './admin/logado/logado';
 import { Logado as logadoCliente } from './cliente/logado/logado';
+import { AuthGuard } from './auth-guard';
 
 
 export const routes: Routes = [
@@ -19,15 +20,19 @@ export const routes: Routes = [
     },
     {
         path: 'admin',
-        component: logadoAdmin
+        component: logadoAdmin,
+        canActivate: [AuthGuard]
+
     },
     {   
         path: 'funcionario',
-        component: logadoFuncionario
+        component: logadoFuncionario,
+        canActivate: [AuthGuard]
     },
     {
         path: 'cliente',
-        component: logadoCliente
+        component: logadoCliente,
+        canActivate: [AuthGuard]
     }
 
 ];

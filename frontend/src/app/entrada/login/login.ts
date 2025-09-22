@@ -4,13 +4,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormGroup, FormControl, Validators, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCardTitle } from '@angular/material/card';
 import { MatLabel } from '@angular/material/form-field';
 import { MatCardContent } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { LoginCliente } from './login-cliente';
+import { Router } from '@angular/router';
+
 
 import { LoginService } from './login-service';
+import { LoginResponse } from './login-models';
+import { AuthService } from '../logado/auth-service';
 
 @Component({
   selector: 'app-login',
@@ -19,9 +22,10 @@ import { LoginService } from './login-service';
   styleUrl: './login.scss'
 })
 export class Login implements OnInit {
+  loginResponse!: LoginResponse | undefined;
   loginCliente: LoginCliente = LoginCliente.newLoginCliente();
   loginForm: FormGroup<{ email: FormControl<string | null>; password: FormControl<string | null>; }>;
-  constructor(private formBuilder: FormBuilder, private loginService: LoginService) {
+  constructor(private formBuilder: FormBuilder, private loginService: LoginService, private authService: AuthService, private router: Router) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -40,8 +44,22 @@ export class Login implements OnInit {
   }
   onSubmit() {
     this.loginService.logar(this.loginCliente).subscribe({
-      next: response => console.log('Login bem-sucedido:', response),
+      next: response => {
+        console.log('Login bem-sucedido:', response);
+        this.loginResponse = response;
+        this.authService.saveToken(this.loginResponse);
+        if (this.loginResponse.roles.includes('ROLE_SUPER_ADMIN') ) {
+          this.router.navigate(['/admin']);
+        } else if (this.loginResponse.roles.includes('ROLE_ADMIN')) {
+          this.router.navigate(['/funcionario']);
+        } else {
+          this.router.navigate(['/cliente']);
+        }
+      },
       error: erro => console.error('Erro no login:', erro)
     });
   }
+
+
+
 }
