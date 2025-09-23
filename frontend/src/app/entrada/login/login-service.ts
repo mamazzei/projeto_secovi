@@ -12,10 +12,11 @@ import { LoginResponse } from './login-models';
 export class LoginService {
   private apiUrl = 'http://localhost:8090/auth/login';
   constructor(private http: HttpClient) { }
-
   logar(loginCliente: LoginCliente): Observable<LoginResponse> {
     console.log('Tentando logar com:', JSON.stringify(loginCliente) );
+//    return this.http.post<LoginResponse>(this.apiUrl, loginCliente);
     return this.http.post<LoginResponse>(this.apiUrl, loginCliente);
+
   }
 
 

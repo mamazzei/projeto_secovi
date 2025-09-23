@@ -10,19 +10,28 @@ export class AuthService {
   constructor() { }
 
   saveToken(loginResponse: LoginResponse): void {
-    localStorage.setItem('jwt_token', loginResponse.token);
+    // Com o uso de cookies, não é necessário salvar o token manualmente
+    //    localStorage.setItem('jwt_token', loginResponse.token);
     localStorage.setItem('token_created_at', loginResponse.createdAt.toString());
     localStorage.setItem('token_expires_in', (loginResponse.createdAt + loginResponse.expiresIn).toString());
     localStorage.setItem('user_id', loginResponse.userId);
     localStorage.setItem('user_roles', JSON.stringify(loginResponse.roles));
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('jwt_token');
-  } 
+  getRoles(): string[] {
+    const roles = localStorage.getItem('user_roles');
+    return roles ? JSON.parse(roles) : [];
+  }
+
+  // O armazenamento de token JWT no localStorage foi removido
+  // devido ao uso de cookies para autenticação.
+  // o Uso de localStorage pode expor o token a ataques XSS.
+  // getToken(): string | null {
+  //   return localStorage.getItem('jwt_token');
+  // } 
 
   removeToken(): void {
-    localStorage.removeItem('jwt_token');
+//    localStorage.removeItem('jwt_token');
     localStorage.removeItem('token_created_at');
     localStorage.removeItem('token_expires_in');
     localStorage.removeItem('user_id');
@@ -31,36 +40,8 @@ export class AuthService {
 
 
   isLoggedIn(): boolean {
-    return localStorage.getItem('jwt_token') !== null;
+    return localStorage.getItem('user_id') !== null;
   }
-
-  isSuperAdmin(): boolean {
-    const roles = localStorage.getItem('user_roles');
-    if (roles) {
-      const rolesArray: string[] = JSON.parse(roles);
-      return rolesArray.includes('ROLE_SUPER_ADMIN');
-    }
-    return false;
-  }
-  
-  isAdmin(): boolean {
-    const roles = localStorage.getItem('user_roles');
-    if (roles) {
-      const rolesArray: string[] = JSON.parse(roles);
-      return rolesArray.includes('ROLE_ADMIN');
-    }
-    return false;
-  }
-
-  isCliente(): boolean {
-    const roles = localStorage.getItem('user_roles');
-    if (roles) {
-      const rolesArray: string[] = JSON.parse(roles);
-      return rolesArray.includes('ROLE_CLIENTE');
-    }
-    return false;
-  }     
-
 
 
 }
