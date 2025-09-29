@@ -44,16 +44,21 @@ export class Login implements OnInit {
   }
   onSubmit() {
     this.loginService.logar(this.loginCliente).subscribe({
-      next: response => {
-        console.log('Login bem-sucedido:', response);
-        this.loginResponse = response;
-        this.authService.saveToken(this.loginResponse);
-        if (this.loginResponse.roles.includes('ROLE_SUPER_ADMIN') ) {
-          this.router.navigate(['/admin']);
-        } else if (this.loginResponse.roles.includes('ROLE_ADMIN')) {
-          this.router.navigate(['/funcionario']);
+      next: (response: LoginResponse | undefined) => {
+        if (response === undefined) {
+          console.error('Erro na autenticação: Resposta de login não definida');
+          return;
         } else {
-          this.router.navigate(['/cliente']);
+          console.log('Login bem-sucedido:', response);
+          this.loginResponse = response;
+          this.authService.saveToken(this.loginResponse);
+          if (this.loginResponse.roles.includes('ROLE_SUPER_ADMIN')) {
+            this.router.navigate(['/admin']);
+          } else if (this.loginResponse.roles.includes('ROLE_ADMIN')) {
+            this.router.navigate(['/funcionario']);
+          } else {
+            this.router.navigate(['/cliente']);
+          }
         }
       },
       error: erro => console.error('Erro no login:', erro)
