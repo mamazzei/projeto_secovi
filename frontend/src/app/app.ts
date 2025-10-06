@@ -4,22 +4,44 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from './entrada/logado/auth-service';
+import { LogoutService } from './entrada/login/logout-service';
+import { CookieService } from 'ngx-cookie-service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, MatToolbarModule, RouterLink, MatIconModule],
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  providers: [AuthService, LogoutService, CookieService]
 })
 export class App {
   authService: AuthService;
-  constructor(authService: AuthService) {
+  loginCliente: any;
+  logoutService: LogoutService;
+  router: Router;
+
+  private cookieService: CookieService;
+  constructor(authService: AuthService, logoutService: LogoutService, cookieService: CookieService, router: Router) {
     this.authService = authService;
+    this.logoutService = logoutService;
+    this.cookieService = cookieService;
+    this.router = router;
   }
   protected readonly title = signal('frontend');
   logout() {
-       this.authService.removeToken();
+    console.log('Realizando logout');
+    this.logoutService.logout().subscribe({
+      next: (response: any) => {
+        console.log('Logout realizado com sucesso:', response);
+        this.cookieService.delete('jwt', '/', 'localhost', true, 'Lax');
+        this.authService.removeToken();
+        this.router.navigate(['/login']);
+      },
+      error: (error: any) => {
+        console.error('Erro ao realizar logout:', error);
+      }
+    });
   }
-
-
 }

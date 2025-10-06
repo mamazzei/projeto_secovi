@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 public class AuthenticationController {
     private final JwtService jwtService;
-    
+
     private final AuthenticationService authenticationService;
 
     public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
@@ -35,37 +35,67 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto, HttpServletResponse response) {
-//        String valor = loginUserDto.getEmail();
-//        System.out.print("Tentando autenticar com: " + valor);
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto,
+            HttpServletResponse response) {
+        // String valor = loginUserDto.getEmail();
+        // System.out.print("Tentando autenticar com: " + valor);
+        try {
+            User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+            if (authenticatedUser == null) {
+                return ResponseEntity.status(401).build();
+            }
 
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setCreatedAt(System.currentTimeMillis());
-        loginResponse.setUserId(authenticatedUser.getId());
-        loginResponse.setToken(jwtToken);
-        String[] roles = new String[authenticatedUser.getAuthorities().size()];
-        int contador=0;
-        for (String roleString : authenticatedUser.getAuthorities().stream().map(auth -> auth.getAuthority()).toList()) {
-            roles[contador] = roleString;
-            contador++; 
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setCreatedAt(System.currentTimeMillis());
+            loginResponse.setUserId(authenticatedUser.getId());
+            // loginResponse.setToken(jwtToken);
+            String[] roles = new String[authenticatedUser.getAuthorities().size()];
+            int contador = 0;
+            for (String roleString : authenticatedUser.getAuthorities().stream().map(auth -> auth.getAuthority())
+                    .toList()) {
+                roles[contador] = roleString;
+                contador++;
+            }
+            loginResponse.setRoles(roles);
+            loginResponse.setExpiresIn(System.currentTimeMillis() + jwtService.getExpirationTime());
+
+            // Aqui é setado o cookie para a authenticação por cookies
+            ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
+                    .httpOnly(true)
+                    .path("/")
+                    .secure(true)
+                    .maxAge(jwtService.getExpirationTime())
+                    .sameSite("Lax")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            return ResponseEntity.ok(loginResponse);
+
+        } catch (Exception e) {
+            LoginResponse loginResponse = new LoginResponse();
+            return ResponseEntity.ok(loginResponse);
         }
-        loginResponse.setRoles(roles);
-        loginResponse.setExpiresIn(jwtService.getExpirationTime());
 
-        // Aqui é setado o cookie para a authenticação por cookies
-        ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<LoginResponse> logout(HttpServletResponse response) {
+        // Aqui é setado o cookie para a autenticação por cookies
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
                 .path("/")
                 .secure(true)
-                .maxAge(jwtService.getExpirationTime())
+                .maxAge(0)
                 .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.ok().build();
     }
+
 }

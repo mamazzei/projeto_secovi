@@ -17,16 +17,15 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-private final RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-    private final PasswordEncoder passwordEncoder;    
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
 
     public List<User> allUsers() {
         List<User> users = new ArrayList<>();
@@ -38,6 +37,7 @@ private final RoleRepository roleRepository;
 
     /***
      * Criação do super usuário administrador
+     * 
      * @param input
      * @return
      */
@@ -53,8 +53,37 @@ private final RoleRepository roleRepository;
                 .setEmail(input.getEmail())
                 .setPassword(passwordEncoder.encode(input.getPassword()))
                 .setRole(optionalRole.get());
+;
+        return userRepository.save(user);
+    }
+
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public User findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public User save(User input) {
+        // Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
+        Optional<Role> optionalRole = roleRepository.findById(input.getRole().getId());
+
+        if (optionalRole.isEmpty()) {
+            return null;
+        }
+
+        var user = new User()
+                .setFullName(input.getFullName())
+                .setEmail(input.getEmail())
+                .setPassword(passwordEncoder.encode(input.getPassword()))
+                .setRole(optionalRole.get());
 
         return userRepository.save(user);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
 }

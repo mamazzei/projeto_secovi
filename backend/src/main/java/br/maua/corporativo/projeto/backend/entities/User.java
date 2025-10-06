@@ -48,10 +48,6 @@ public class User implements UserDetails {
         return password;
     }
 
-    @Override
-    public String getUsername() {
-        return email;
-    }
 
     @Override
     public boolean isAccountNonExpired() {
@@ -120,6 +116,7 @@ public class User implements UserDetails {
         this.updatedAt = updatedAt;
     }
 
+
     // Getters and setters para roles
 
     @ManyToOne(cascade = CascadeType.REMOVE)
@@ -135,5 +132,11 @@ public class User implements UserDetails {
 
         return this;
     }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
 
 }

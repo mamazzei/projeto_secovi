@@ -22,6 +22,7 @@ import { AuthService } from '../logado/auth-service';
   styleUrl: './login.scss'
 })
 export class Login implements OnInit {
+  errorMessage: string | null = null;
   loginResponse!: LoginResponse | undefined;
   loginCliente: LoginCliente = LoginCliente.newLoginCliente();
   loginForm: FormGroup<{ email: FormControl<string | null>; password: FormControl<string | null>; }>;
@@ -44,22 +45,25 @@ export class Login implements OnInit {
   }
   onSubmit() {
     this.loginService.logar(this.loginCliente).subscribe({
-      next: response => {
-        console.log('Login bem-sucedido:', response);
-        this.loginResponse = response;
-        this.authService.saveToken(this.loginResponse);
-        if (this.loginResponse.roles.includes('ROLE_SUPER_ADMIN') ) {
-          this.router.navigate(['/admin']);
-        } else if (this.loginResponse.roles.includes('ROLE_ADMIN')) {
-          this.router.navigate(['/funcionario']);
+      next: (response: LoginResponse) => {
+        if (response.roles == null || response.roles.length === 0) {
+          this.errorMessage = 'Erro na autenticação não foi possível efetuar o login. Verifique seu usuário e senha.';
+          return;
         } else {
-          this.router.navigate(['/cliente']);
+          console.log('Login bem-sucedido:', response);
+          this.loginResponse = response;
+          this.authService.saveToken(this.loginResponse);
+          if (this.loginResponse.roles.includes('ROLE_SUPER_ADMIN')) {
+            this.router.navigate(['/user-cadastro']);
+          } else if (this.loginResponse.roles.includes('ROLE_ADMIN')) {
+            this.router.navigate(['/lista']);
+          } else {
+            this.router.navigate(['/upload']);
+          }
         }
       },
       error: erro => console.error('Erro no login:', erro)
     });
   }
-
-
 
 }

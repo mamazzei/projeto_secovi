@@ -5,6 +5,7 @@
  */
 package br.maua.corporativo.projeto.backend.entities;
 
+// Editar também em 
 public enum RoleEnum {
     USER,
     ADMIN,
