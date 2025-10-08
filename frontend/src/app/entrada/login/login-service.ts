@@ -3,6 +3,7 @@ import { LoginCliente } from './login-cliente';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LoginResponse } from './login-models';
+import { ConfigService } from '../../config/config.service';
 
 
 @Injectable({
@@ -10,12 +11,15 @@ import { LoginResponse } from './login-models';
 })
 
 export class LoginService {
-  private apiUrl = 'http://localhost:8090/auth/login';
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) {}
+
   logar(loginCliente: LoginCliente): Observable<LoginResponse> {
-    console.log('Tentando logar com:', JSON.stringify(loginCliente) );
-//    return this.http.post<LoginResponse>(this.apiUrl, loginCliente);
-    return this.http.post<LoginResponse>(this.apiUrl, loginCliente);
+    const apiUrl = this.configService.apiUrl + '/auth/login';
+    console.log('Tentando logar com:', JSON.stringify(loginCliente), ' na URL:', apiUrl);
+    return this.http.post<LoginResponse>(apiUrl, loginCliente);
 
   }
 
