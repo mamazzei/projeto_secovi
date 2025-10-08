@@ -1,38 +1,36 @@
 import { Routes } from '@angular/router';
-import { Logado } from './entrada/logado/logado';
-import { Login } from './entrada/login/login';
-import { Logado as logadoFuncionario } from './funcionario/logado/logado';
-import { Logado as logadoAdmin } from './admin/logado/logado';
-import { Logado as logadoCliente } from './cliente/logado/logado';
-import { AuthGuard } from './auth-guard';
-
+import { authGuard } from '@core';
+import { AdminLayout } from '@theme/admin-layout/admin-layout';
+import { AuthLayout } from '@theme/auth-layout/auth-layout';
+import { Dashboard } from './routes/dashboard/dashboard';
+import { Error403 } from './routes/sessions/error-403';
+import { Error404 } from './routes/sessions/error-404';
+import { Error500 } from './routes/sessions/error-500';
+import { Login } from './routes/sessions/login/login';
+import { Register } from './routes/sessions/register/register';
 
 export const routes: Routes = [
-
-    {
-        path: '',
-        redirectTo: 'login',
-        pathMatch: 'full'
-    },
-    {
-        path: 'login',
-        component: Login
-    },
-    {
-        path: 'admin',
-        component: logadoAdmin,
-        canActivate: [AuthGuard]
-
-    },
-    {   
-        path: 'funcionario',
-        component: logadoFuncionario,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: 'cliente',
-        component: logadoCliente,
-        canActivate: [AuthGuard]
-    }
-
+  {
+    path: '',
+    component: AdminLayout,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: Dashboard },
+      { path: '403', component: Error403 },
+      { path: '404', component: Error404 },
+      { path: '500', component: Error500 },
+      { path: 'painel', loadChildren: () => import('./routes/painel/painel.routes').then(m => m.routes) },
+    ],
+  },
+  {
+    path: 'auth',
+    component: AuthLayout,
+    children: [
+      { path: 'login', component: Login },
+      { path: 'register', component: Register },
+    ],
+  },
+  { path: '**', redirectTo: 'dashboard' },
 ];
